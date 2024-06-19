@@ -11,31 +11,29 @@ namespace RestaurantOrderManagement.Services
         private readonly IConnection _connection;
         private readonly IModel _channel;
         private readonly ILogger<RabbitMQService> _logger;
+        private readonly string _exchangeName;
 
         public RabbitMQService(IConfiguration configuration, ILogger<RabbitMQService> logger)
         {
             _logger = logger;
             var factory = new ConnectionFactory()
             {
-                HostName = configuration["RabbitMQ:HostName"]
+                HostName = configuration["RabbitMQ:HostName"] ?? "localhost",
+                Port = int.Parse(configuration["RabbitMQ:Port"] ?? "5672"),
+                UserName = configuration["RabbitMQ:UserName"] ?? "guest",
+                Password = configuration["RabbitMQ:Password"] ?? "guest"
             };
-
             try
             {
                 _connection = factory.CreateConnection();
                 _channel = _connection.CreateModel();
 
-                var exchange = configuration["RabbitMQ:ExchangeName"] ?? "orderExchange";
-                _channel.ExchangeDeclare(exchange: exchange, type: ExchangeType.Direct);
+                _exchangeName = configuration["RabbitMQ:ExchangeName"] ?? "defaultExchange";
+                _channel.ExchangeDeclare(exchange: _exchangeName, type: ExchangeType.Direct);
 
-                var orderQueue = configuration["RabbitMQ:OrderQueueName"] ?? "orderQueue";
-                var statusQueue = configuration["RabbitMQ:StatusQueueName"] ?? "statusQueue";
-
-                _channel.QueueDeclare(queue: orderQueue, durable: true, exclusive: false, autoDelete: false, arguments: null);
-                _channel.QueueDeclare(queue: statusQueue, durable: true, exclusive: false, autoDelete: false, arguments: null);
-
-                _channel.QueueBind(queue: orderQueue, exchange: exchange, routingKey: "order");
-                _channel.QueueBind(queue: statusQueue, exchange: exchange, routingKey: "status");
+                InitializeQueue(configuration, "OrderQueueName", "order");
+                InitializeQueue(configuration, "StatusQueueName", "status");
+                InitializeQueue(configuration, "MenuQueueName", "menu");
 
                 _logger.LogInformation("RabbitMQService initialized successfully.");
             }
@@ -47,19 +45,24 @@ namespace RestaurantOrderManagement.Services
             }
         }
 
-        public void SendMessage(string message, string type)
+        private void InitializeQueue(IConfiguration configuration, string queueConfigName, string routingKey)
+        {
+            var queueName = configuration[$"RabbitMQ:{queueConfigName}"] ?? $"{routingKey}Queue";
+            _channel.QueueDeclare(queue: queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
+            _channel.QueueBind(queue: queueName, exchange: _exchangeName, routingKey: routingKey);
+        }
+
+        public void SendMessage(string message, string routingKey)
         {
             try
             {
                 var body = Encoding.UTF8.GetBytes(message);
-                var exchange = "orderExchange"; 
-
-                _channel.BasicPublish(exchange: exchange, routingKey: type, basicProperties: null, body: body);
-                _logger.LogInformation($"Sent message '{message}' with type '{type}'");
+                _channel.BasicPublish(exchange: _exchangeName, routingKey: routingKey, basicProperties: null, body: body);
+                _logger.LogInformation($"Sent message '{message}' with routing key '{routingKey}'");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Failed to send message '{message}' with type '{type}'");
+                _logger.LogError(ex, $"Failed to send message '{message}' with routing key '{routingKey}'");
                 throw;
             }
         }

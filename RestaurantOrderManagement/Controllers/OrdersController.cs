@@ -14,10 +14,11 @@ using System.Net.Http.Headers;
 public class OrdersController : Controller
 {
     private readonly IHttpClientFactory _httpClientFactory;
-
-    public OrdersController(IHttpClientFactory httpClientFactory)
+    private readonly RabbitMQService _rabbitMQService;
+    public OrdersController(IHttpClientFactory httpClientFactory, RabbitMQService rabbitMQService)
     {
         _httpClientFactory = httpClientFactory;
+        _rabbitMQService = rabbitMQService;
     }
 
     // GET: /Orders
@@ -98,6 +99,7 @@ public class OrdersController : Controller
 
         if (response.IsSuccessStatusCode)
         {
+            _rabbitMQService.SendMessage(jsonContent, "order"); 
             return RedirectToAction(nameof(Index));
         }
         else
@@ -143,7 +145,8 @@ public class OrdersController : Controller
         var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
         var response = await client.PutAsync($"api/orders/{id}", content);
-
+        var message = $"Order {id} updated to status {updatedOrder.Status}";
+        _rabbitMQService.SendMessage(message, "status");
         if (!response.IsSuccessStatusCode)
         {
             var errorMessage = await response.Content.ReadAsStringAsync();

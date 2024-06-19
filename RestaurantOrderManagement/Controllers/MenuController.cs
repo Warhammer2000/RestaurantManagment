@@ -12,10 +12,12 @@ using System.Threading.Tasks;
 public class MenuController : Controller
 {
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly RabbitMQService _rabbitMQService;
 
-    public MenuController(IHttpClientFactory httpClientFactory)
+    public MenuController(IHttpClientFactory httpClientFactory, RabbitMQService rabbitMQService)
     {
         _httpClientFactory = httpClientFactory;
+        _rabbitMQService = rabbitMQService;
     }
 
     // GET: /Menu
@@ -53,7 +55,7 @@ public class MenuController : Controller
 
         var response = await client.PostAsync("api/menuitems", content);
         response.EnsureSuccessStatusCode();
-
+        _rabbitMQService.SendMessage(jsonContent, "menu");
         return RedirectToAction(nameof(Index));
     }
 

@@ -1,15 +1,21 @@
 
 
 using MenuService.DB;
+using MenuService.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllers();
+
 builder.Services.AddSwaggerGen();
+
 builder.Services.AddDbContext<MenuContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddSingleton<RabbitMQMenuHandler>();
+
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -21,7 +27,7 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = string.Empty; 
     });
 }
-
+app.Services.GetRequiredService<RabbitMQMenuHandler>();
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();

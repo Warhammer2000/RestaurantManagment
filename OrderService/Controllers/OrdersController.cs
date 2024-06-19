@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using OrderService.DB;
 using OrderService.Models;
+using OrderService.Services;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,6 +17,7 @@ namespace OrderService.Controllers
         public OrdersController(OrderContext context)
         {
             _context = context;
+
         }
 
         [HttpGet]
@@ -80,10 +82,12 @@ namespace OrderService.Controllers
             existingOrder.Details = updatedOrder.Details;
             existingOrder.Status = updatedOrder.Status;
             existingOrder.CreatedDate = DateTime.Now;
+
             _context.Entry(existingOrder).State = EntityState.Modified;
 
             try
             {
+
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
