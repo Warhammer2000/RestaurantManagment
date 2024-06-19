@@ -1,0 +1,98 @@
+﻿@model IEnumerable<RestaurantOrderManagement.Models.MenuItem>
+
+@{
+    ViewData["Title"] = "Menu Items";
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col">
+            <h2 class="text-center mb-4">Menu Items</h2>
+
+            <!-- Форма фильтрации -->
+            <div class="mb-4 p-3 border rounded shadow-sm">
+                <h4 class="mb-3">Filter Menu Items</h4>
+                <form asp-action="Filter" method="get">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" name="name" id="name" class="form-control" placeholder="Enter name to filter" />
+                        </div>
+                        <div class="col-md-4">
+                            <label for="minPrice" class="form-label">Min Price</label>
+                            <input type="number" name="minPrice" id="minPrice" class="form-control" placeholder="Enter min price" />
+                        </div>
+                        <div class="col-md-4">
+                            <label for="maxPrice" class="form-label">Max Price</label>
+                            <input type="number" name="maxPrice" id="maxPrice" class="form-control" placeholder="Enter max price" />
+                        </div>
+                    </div>
+                    <div class="text-end mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-filter"></i> Filter
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Форма сортировки -->
+            <div class="mb-4 p-3 border rounded shadow-sm">
+                <h4 class="mb-3">Sort Menu Items</h4>
+                <form asp-action="Sort" method="get">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label for="sortBy" class="form-label">Sort By</label>
+                            <select name="sortBy" id="sortBy" class="form-control">
+                                <option value="name">Name</option>
+                                <option value="price">Price</option>
+                                <option value="id">ID</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-secondary w-100">
+                                <i class="bi bi-arrow-down-up"></i> Sort
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Кнопка создания нового элемента меню -->
+            <div class="mb-4 text-end">
+                <a class="btn btn-success" asp-action="Create">
+                    <i class="bi bi-plus-circle"></i> Create New Menu Item
+                </a>
+            </div>
+
+            <!-- Таблица элементов меню -->
+            <table class="table table-striped table-hover table-bordered shadow-sm">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Price</th>
+                        <th scope="col" class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td>@item.Name</td>
+                            <td>@item.Price</td>
+                            <td class="text-center">
+                                <a class="btn btn-info btn-sm mx-1" asp-action="Edit" asp-route-id="@item.Id">
+                                    <i class="bi bi-pencil-square"></i> Edit
+                                </a>
+                                <a class="btn btn-danger btn-sm mx-1" asp-action="Delete" asp-route-id="@item.Id">
+                                    <i class="bi bi-trash"></i> Delete
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

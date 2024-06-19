@@ -1,0 +1,81 @@
+﻿@model IEnumerable<RestaurantOrderManagement.Models.Order>
+
+@{
+    ViewData["Title"] = "Orders Management";
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="text-center mb-4">@ViewData["Title"]</h2>
+
+            <!-- Форма фильтрации -->
+            <form method="get" asp-action="Index" class="mb-4 p-3 border rounded shadow-sm">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label for="status" class="form-label">Status</label>
+                        <input type="text" id="status" name="status" class="form-control" placeholder="Enter status" />
+                    </div>
+                    <div class="col-md-3">
+                        <label for="startDate" class="form-label">Start Date</label>
+                        <input type="date" id="startDate" name="startDate" class="form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <label for="endDate" class="form-label">End Date</label>
+                        <input type="date" id="endDate" name="endDate" class="form-control" />
+                    </div>
+                    <div class="col-md-3 align-self-end text-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-filter"></i> Apply Filters
+                        </button>
+                    </div>
+                </div>
+            </form>
+            <div class="mb-4 text-end">
+                <a class="btn btn-success" asp-action="Create">
+                    <i class="bi bi-plus-circle"></i> Create Order
+                </a>
+            </div>
+            <table class="table table-striped table-hover table-bordered shadow-sm">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Order ID</th>
+                        <th scope="col">Details</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Created Date</th> 
+                        <th scope="col" class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model)
+                    {
+                        <tr>
+                            <td>@order.Id</td>
+                            <td>@order.Details</td>
+                            <td>
+                                <span class="badge
+                                    @(order.Status == "Pending" ? "bg-warning text-dark" :
+                                      order.Status == "Completed" ? "bg-success" :
+                                      "bg-secondary")">
+                                    @order.Status
+                                </span>
+                            </td>
+                            <td>@order.CreatedDate.ToString("yyyy-MM-dd HH:mm:ss")</td> 
+                            <td class="text-center">
+                                <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-info btn-sm mx-1">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@order.Id" class="btn btn-warning btn-sm mx-1">
+                                    <i class="bi bi-pencil-square"></i> Edit
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@order.Id" class="btn btn-danger btn-sm mx-1">
+                                    <i class="bi bi-trash"></i> Delete
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

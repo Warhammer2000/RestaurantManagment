@@ -1,0 +1,30 @@
+﻿@{
+    ViewData["Title"] = "Users Management";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-primary text-white text-center">
+                    <h2 class="mb-0">Users Management</h2>
+                </div>
+                <div class="card-body text-center">
+                    <h4 class="mb-4">Welcome to Users Management</h4>
+                    <p>Please choose an action:</p>
+                    <div class="d-flex justify-content-center">
+                        <a class="btn btn-primary mx-2" asp-controller="Users" asp-action="Register">
+                            <i class="bi bi-person-plus"></i> Register
+                        </a>
+                        <a class="btn btn-success mx-2" asp-controller="Users" asp-action="Login">
+                            <i class="bi bi-box-arrow-in-right"></i> Login
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer text-center text-muted">
+                    Manage your user accounts easily and efficiently.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
